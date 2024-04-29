@@ -1,4 +1,6 @@
-from langchain_openai import ChatOpenAI
+# from langchain_openai import ChatOpenAI
+import os
+from langchain_community.chat_models import ChatZhipuAI
 from langchain.chains import LLMChain
 
 from langchain.prompts.chat import (
@@ -10,7 +12,7 @@ from langchain.prompts.chat import (
 from utils import LOG
 
 class TranslationChain:
-    def __init__(self, model_name: str = "gpt-3.5-turbo", verbose: bool = True):
+    def __init__(self, model_name: str = "glm-4", verbose: bool = True):
         
         # 翻译任务指令始终由 System 角色承担
         template = (
@@ -31,7 +33,12 @@ class TranslationChain:
         )
 
         # 为了翻译结果的稳定性，将 temperature 设置为 0
-        chat = ChatOpenAI(model_name=model_name, temperature=0, verbose=verbose)
+        # chat = ChatOpenAI(model_name=model_name, temperature=0, verbose=verbose)
+        chat = ChatZhipuAI(
+                api_key=os.environ.get("ZHIPUAI_API_KEY"),
+                max_token=1000,
+                top_p=0.9,
+                verbose=verbose)
 
         self.chain = LLMChain(llm=chat, prompt=chat_prompt_template, verbose=verbose)
 
